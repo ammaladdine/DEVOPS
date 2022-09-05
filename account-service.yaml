@@ -1,0 +1,43 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: accountservice
+  name: accountservice
+  namespace: citizen
+spec:
+  replicas: 1 
+  selector:
+    matchLabels:
+      app: accountservice
+  template:
+    metadata:
+      labels:
+        app: accountservice
+    spec:
+      containers:
+      - image: 093471887101.dkr.ecr.us-east-1.amazonaws.com/account-service:677b5ae7-citizen-71
+        imagePullPolicy: Always
+        name: accountservice
+        resources:
+          requests:
+            memory: 512Mi
+      restartPolicy: Always
+      schedulerName: default-scheduler
+
+---
+#Service.yaml
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: accountservice
+  namespace: citizen
+spec:
+  ports:
+    - name: accountservice
+      port: 8081
+      protocol: TCP
+  selector:
+    app: accountservice
+  type: ClusterIP
