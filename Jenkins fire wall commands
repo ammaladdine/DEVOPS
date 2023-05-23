@@ -1,0 +1,6 @@
+firewall-cmd --state
+sudo firewall-cmd --state
+systemctl status firewalld
+systemctl stop firewalld
+sudo systemctl stop firewalld
+sudo firewall-cmd --state
