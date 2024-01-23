@@ -1,0 +1,24 @@
+#!/bin/bash
+
+namespaces=("testcronjob1" "testcronjob2")
+label_selector=( "app=nginx")
+output_path="/bin/testcronjob/crobjob/out.log"
+KUBECONFIG="/home/ssm-user/.kube/sampleconfig"
+export KUBECONFIG
+
+for namespace in "${namespaces[@]}"; do
+    echo "Running script for namespace: $namespace" >> "$output_path"
+
+    # Retrieve the pod name based on the label selector
+    pod_name=$(kubectl get pods -n "$namespace" -l "$label_selector" -o jsonpath='{.items[0].metadata.name}')
+
+    if [[ -z "$pod_name" ]]; then
+        echo "No pods found with label selector '$label_selector' in namespace: $namespace" >> "$output_path"
+        continue
+    fi
+
+    echo "Restarting pod: $pod_name" >> "$output_path"
+    kubectl delete pod -n "$namespace" "$pod_name" >> "$output_path" 2>&1
+done
+
+echo "Script execution completed." >> "$output_path"

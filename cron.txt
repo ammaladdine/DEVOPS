@@ -1,0 +1,27 @@
+#!/bin/bash
+
+namespaces=("crm-dev")
+label_selectors=( "app=crm-app-uam" "app=crm-audit-details-read" "app=crm-card-issue-details" "app=crm-case-case-communication-read" "app=crm-case-case-communication-write" "app=crm-case-case-details-read" "app=crm-case-case-details-write" "app=crm-case-case-documents-read" "app=crm-case-case-documents-write" "app=crm-case-case-master-read" "app=crm-case-case-queue-details-read" "app=crm-case-case-queue-details-write" "app=crm-case-composite-read" "app=crm-case-composite-write" "app=crm-case-omnidocs" "app=crm-case-task-audit-read" "app=crm-case-task-audit-write" "app=crm-case-task-comments-read" "app=crm-case-task-comments-write" "app=crm-case-task-composite-read" "app=crm-case-task-composite-write" "app=crm-case-task-details-read" "app=crm-case-task-details-write" "app=crm-customer-address-read" "app=crm-customer-address-write" "app=crm-customer-assetdetails-read" "app=crm-customer-assetdetails-write" "app=crm-customer-audit-details" "app=crm-customer-audit-details-read" "app=crm-customer-business-details-read" "app=crm-customer-card-details-read" "app=crm-customer-card-details-write" "app=crm-customer-composite-write" "app=crm-customer-consent-details-read" "app=crm-customer-consent-details-write" "app=crm-customer-contact-read" "app=crm-customer-contact-write" "app=crm-customer-devicedetails-read" "app=crm-customer-devicedetails-write" "app=crm-customer-kyc-details-read" "app=crm-customer-kyc-details-write" "app=crm-customer-loans-api" "app=crm-customer-occupation-read" "app=crm-customer-occupation-write" "app=crm-customer-ops360-api" "app=crm-customer-party-read" "app=crm-customer-party-status-read" "app=crm-customer-party-status-write" "app=crm-customer-party-write" "app=crm-customer-referral-promotion-read" "app=crm-customer-referral-promotion-write" "app=crm-customer-relationship-read" "app=crm-customer-relationship-write" "app=crm-customer-sis-read" "app=crm-ops360-composite-api" "app=crm-ops360-read" "app=crm-opsdetails360-read" "app=crm-party-externalsystemresponse-read" "app=crm-party-externalsystemresponse-write" "app=crm-party-findetails" "app=crm-party-loan-fields-read" "app=crm-party-search" "app=crm-uam-roles" "app=crm-ui-app" )
+output_path="/bin/testcronjob/crobjob/out.log"
+KUBECONFIG="/home/ssm-user/.kube/sampleconfig"
+export KUBECONFIG
+
+for namespace in "${namespaces[@]}"; do
+    echo "Running script for namespace: $namespace" >> "$output_path"
+
+ 
+    for label_selector in "${label_selectors[@]}"; do
+        pod_name=$(kubectl get pods -n "$namespace" -l "$label_selector" -o jsonpath='{.items[0].metadata.name}')
+
+ 
+        if [[ -z "$pod_name" ]]; then
+            echo "No pods found with label selector '$label_selector' in namespace: $namespace" >> "$output_path"
+            continue
+        fi
+
+
+        echo "Restarting pod: $pod_name" >> "$output_path"
+        kubectl delete pod -n "$namespace" "$pod_name" >> "$output_path" 2>&1
+    done
+done
+echo "Script execution completed." >> "$output_path"
